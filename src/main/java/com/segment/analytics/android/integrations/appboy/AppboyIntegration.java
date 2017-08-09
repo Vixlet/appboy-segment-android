@@ -1,4 +1,4 @@
-package com.segment.analytics.android.integrations.appboy;
+package com.vixlet.app.analytics;
 
 import android.app.Activity;
 
@@ -22,6 +22,7 @@ import com.segment.analytics.integrations.TrackPayload;
 
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
@@ -168,9 +169,12 @@ public class AppboyIntegration extends Integration<Appboy> {
           mAppboy.getCurrentUser().setCustomUserAttributeToSecondsFromEpoch(key, secondsFromEpoch);
         } else if (value instanceof String) {
           mAppboy.getCurrentUser().setCustomUserAttribute(key, (String) value);
-        } else {
+        } else if (value instanceof String[]) {
+          mAppboy.getCurrentUser().setCustomAttributeArray(key, (String[]) value);
+        }
+        else {
           mLogger.info("Appboy can't map segment value for custom Appboy user "
-            + "attribute with key %s and value %s", key, value);
+                  + "attribute with key %s and value %s", key, value);
         }
       }
     }
