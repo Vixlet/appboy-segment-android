@@ -223,20 +223,17 @@ public class AppboyIntegration extends Integration<Appboy> {
         }
         JSONObject propertiesJson = properties.toJsonObject();
         double revenue = properties.revenue();
-        if (revenue != 0) {
-            String currencyCode = StringUtils.isNullOrBlank(properties.currency()) ? DEFAULT_CURRENCY_CODE
-                    : properties.currency();
-            propertiesJson.remove(REVENUE_KEY);
-            propertiesJson.remove(CURRENCY_KEY);
-            if (propertiesJson.length() == 0) {
-                mLogger.verbose("Calling appboy.logPurchase for purchase %s for %.02f %s with no"
-                        + " properties.", event, revenue, currencyCode);
-                mAppboy.logPurchase(event, currencyCode, new BigDecimal(revenue));
-            } else {
-                mLogger.verbose("Calling appboy.logPurchase for purchase %s for %.02f %s with properties"
-                        + " %s.", event, revenue, currencyCode, propertiesJson.toString());
-                mAppboy.logPurchase(event, currencyCode, new BigDecimal(revenue),
-                        new AppboyProperties(propertiesJson));
+        if (event == TrackingEvents.ORDER_COMPLETED ) {
+            for (Properties.Product product : properties.products()) {
+                propertiesJson.remove(REVENUE_KEY);
+                propertiesJson.remove(CURRENCY_KEY);
+                if (propertiesJson.length() == 0) {
+                    mAppboy.logPurchase(product.sku(), properties.currency(), new BigDecimal(revenue));
+                } else {
+
+                    mAppboy.logPurchase(product.sku(), properties.currency(), new BigDecimal(revenue), new AppboyProperties(propertiesJson));
+
+                }
             }
         } else {
             mLogger.verbose("Calling appboy.logCustomEvent for event %s with properties %s.",
